@@ -373,26 +373,26 @@ def is_valid(addr):
 
 
 def is_address(addr):
-    ADDRESS_RE = re.compile('[1-9A-HJ-NP-Za-km-z]{26,}\\Z')
+    ADDRESS_RE = re.compile('[2mn][1-9A-HJ-NP-Za-km-z]{26,35}\\Z')
     if not ADDRESS_RE.match(addr):
         return False
     try:
         addrtype, h = bc_address_to_hash_160(addr)
     except Exception:
         return False
-    if addrtype not in [0, 5]:
+    if addrtype not in [111, 196]:
         return False
     return addr == hash_160_to_bc_address(h, addrtype)
 
 def is_p2pkh(addr):
     if is_address(addr):
         addrtype, h = bc_address_to_hash_160(addr)
-        return addrtype in [0]
+        return addrtype in [111]
 
 def is_p2sh(addr):
     if is_address(addr):
         addrtype, h = bc_address_to_hash_160(addr)
-        return addrtype in [5]
+        return addrtype in [196]
 
 def is_private_key(key):
     try:
