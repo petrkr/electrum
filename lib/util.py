@@ -214,7 +214,7 @@ def android_data_dir():
     return PythonActivity.mActivity.getFilesDir().getPath() + '/data'
 
 def android_headers_path():
-    path = android_ext_dir() + '/org.electrum.electrum/blockchain_headers'
+    path = android_ext_dir() + '/org.electrum.electrum/blockchain_testnet_headers'
     d = os.path.dirname(path)
     if not os.path.exists(d):
         os.mkdir(d)
@@ -224,11 +224,11 @@ def android_check_data_dir():
     """ if needed, move old directory to sandbox """
     ext_dir = android_ext_dir()
     data_dir = android_data_dir()
-    old_electrum_dir = ext_dir + '/electrum'
+    old_electrum_dir = ext_dir + '/electrum-testnet'
     if not os.path.exists(data_dir) and os.path.exists(old_electrum_dir):
         import shutil
         new_headers_path = android_headers_path()
-        old_headers_path = old_electrum_dir + '/blockchain_headers'
+        old_headers_path = old_electrum_dir + '/blockchain_testnet_headers'
         if not os.path.exists(new_headers_path) and os.path.exists(old_headers_path):
             print_error("Moving headers file to", new_headers_path)
             shutil.move(old_headers_path, new_headers_path)
@@ -240,15 +240,15 @@ def get_headers_path(config):
     if 'ANDROID_DATA' in os.environ:
         return android_headers_path()
     else:
-        return os.path.join(config.path, 'blockchain_headers')
+        return os.path.join(config.path, 'blockchain_testnet_headers')
 
 def user_dir():
     if "HOME" in os.environ:
-        return os.path.join(os.environ["HOME"], ".electrum")
+        return os.path.join(os.environ["HOME"], ".electrum-testnet")
     elif "APPDATA" in os.environ:
-        return os.path.join(os.environ["APPDATA"], "Electrum")
+        return os.path.join(os.environ["APPDATA"], "Electrum-Testnet")
     elif "LOCALAPPDATA" in os.environ:
-        return os.path.join(os.environ["LOCALAPPDATA"], "Electrum")
+        return os.path.join(os.environ["LOCALAPPDATA"], "Electrum-Testnet")
     elif 'ANDROID_DATA' in os.environ:
         return android_check_data_dir()
     else:

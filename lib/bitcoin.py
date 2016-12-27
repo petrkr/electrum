@@ -230,7 +230,7 @@ def public_key_to_bc_address(public_key):
     h160 = hash_160(public_key)
     return hash_160_to_bc_address(h160)
 
-def hash_160_to_bc_address(h160, addrtype = 0):
+def hash_160_to_bc_address(h160, addrtype = 111):
     vh160 = chr(addrtype) + h160
     h = Hash(vh160)
     addr = vh160 + h[0:4]
@@ -318,12 +318,12 @@ def PrivKeyToSecret(privkey):
     return privkey[9:9+32]
 
 
-def SecretToASecret(secret, compressed=False, addrtype=0):
+def SecretToASecret(secret, compressed=False, addrtype=111):
     vchIn = chr((addrtype+128)&255) + secret
     if compressed: vchIn += '\01'
     return EncodeBase58Check(vchIn)
 
-def ASecretToSecret(key, addrtype=0):
+def ASecretToSecret(key, addrtype=111):
     vch = DecodeBase58Check(key)
     if vch and vch[0] == chr((addrtype+128)&255):
         return vch[1:]
@@ -745,7 +745,7 @@ def deserialize_xkey(xkey):
     return depth, fingerprint, child_number, c, K_or_k
 
 
-def get_xkey_name(xkey, testnet=False):
+def get_xkey_name(xkey, testnet=True):
     depth, fingerprint, child_number, c, K = deserialize_xkey(xkey)
     n = int(child_number.encode('hex'), 16)
     if n & BIP32_PRIME:
@@ -760,7 +760,7 @@ def get_xkey_name(xkey, testnet=False):
         raise BaseException("xpub depth error")
 
 
-def xpub_from_xprv(xprv, testnet=False):
+def xpub_from_xprv(xprv, testnet=True):
     depth, fingerprint, child_number, c, k = deserialize_xkey(xprv)
     K, cK = get_pubkeys_from_secret(k)
     header_pub, _  = _get_headers(testnet)
@@ -768,7 +768,7 @@ def xpub_from_xprv(xprv, testnet=False):
     return EncodeBase58Check(xpub)
 
 
-def bip32_root(seed, testnet=False):
+def bip32_root(seed, testnet=True):
     header_pub, header_priv = _get_headers(testnet)
     I = hmac.new("Bitcoin seed", seed, hashlib.sha512).digest()
     master_k = I[0:32]
@@ -779,7 +779,7 @@ def bip32_root(seed, testnet=False):
     return EncodeBase58Check(xprv), EncodeBase58Check(xpub)
 
 
-def xpub_from_pubkey(cK, testnet=False):
+def xpub_from_pubkey(cK, testnet=True):
     header_pub, header_priv = _get_headers(testnet)
     assert cK[0] in ['\x02','\x03']
     master_c = chr(0)*32
@@ -787,7 +787,7 @@ def xpub_from_pubkey(cK, testnet=False):
     return EncodeBase58Check(xpub)
 
 
-def bip32_private_derivation(xprv, branch, sequence, testnet=False):
+def bip32_private_derivation(xprv, branch, sequence, testnet=True):
     assert sequence.startswith(branch)
     if branch == sequence:
         return xprv, xpub_from_xprv(xprv, testnet)
@@ -810,7 +810,7 @@ def bip32_private_derivation(xprv, branch, sequence, testnet=False):
     return EncodeBase58Check(xprv), EncodeBase58Check(xpub)
 
 
-def bip32_public_derivation(xpub, branch, sequence, testnet=False):
+def bip32_public_derivation(xpub, branch, sequence, testnet=True):
     header_pub, _ = _get_headers(testnet)
     depth, fingerprint, child_number, c, cK = deserialize_xkey(xpub)
     assert sequence.startswith(branch)
